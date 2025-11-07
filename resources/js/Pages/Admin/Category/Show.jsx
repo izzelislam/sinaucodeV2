@@ -57,7 +57,7 @@ export default function CategoryShow({ category }) {
         <DashboardLayout>
             <Head title={category.name} />
 
-            <div className="mx-auto max-w-6xl space-y-8">
+            <div className="mx-auto max-w-full space-y-8">
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                     <div>
                         <p className="text-xs font-semibold uppercase tracking-wide text-brand-600">Category Overview</p>

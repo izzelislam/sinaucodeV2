@@ -25,6 +25,10 @@ class Article extends Model
         'published_at',
     ];
 
+    protected $appends = [
+        'has_featured_image',
+    ];
+
     protected $casts = [
         'published_at' => 'datetime',
     ];
@@ -104,5 +108,13 @@ class Article extends Model
     public function getExcerptAttribute($value)
     {
         return $value ?: Str::limit(strip_tags($this->content), 150);
+    }
+
+    /**
+     * Check if article has a featured image
+     */
+    public function getHasFeaturedImageAttribute(): bool
+    {
+        return $this->featuredImage !== null;
     }
 }

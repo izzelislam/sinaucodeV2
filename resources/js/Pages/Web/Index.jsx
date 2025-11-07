@@ -5,8 +5,9 @@ import Hero from '../../Components/Web/Hero';
 import TagFilter from '../../Components/Web/TagFilter';
 import ArticleGrid from '../../Components/Web/ArticleGrid';
 import { ARTICLES, getTagList } from '../../data/articles';
+import { Description } from '@headlessui/react';
 
-const Index = () => {
+const Index = ({ auth }) => {
   const [activeTag, setActiveTag] = useState('All');
   const [searchTerm, setSearchTerm] = useState('');
   const resultRef = useRef(null);
@@ -45,8 +46,9 @@ const Index = () => {
   };
 
   return (
-    <WebLayout>
+    <WebLayout auth={auth}>
       <Head title="TechTutor — Learn to build with modern tools" />
+      
       <Hero searchValue={searchTerm} onSearchChange={setSearchTerm} onSearchSubmit={handleSearchSubmit} />
       <section ref={resultRef} className="mx-auto max-w-7xl px-4 pb-16 sm:px-6 lg:px-8">
         <div className="mt-10">

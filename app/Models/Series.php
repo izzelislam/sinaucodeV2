@@ -16,6 +16,10 @@ class Series extends Model
         'description',
     ];
 
+    protected $appends = [
+        'has_featured_image',
+    ];
+
     /**
      * Get the options for generating the slug.
      */
@@ -67,5 +71,13 @@ class Series extends Model
     public function getNextArticleOrder(): int
     {
         return $this->articles()->max('series_order') + 1;
+    }
+
+    /**
+     * Check if series has a featured image
+     */
+    public function getHasFeaturedImageAttribute(): bool
+    {
+        return $this->featuredImage !== null;
     }
 }

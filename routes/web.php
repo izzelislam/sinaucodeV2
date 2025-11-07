@@ -1,7 +1,10 @@
 <?php
 
+use App\Http\Controllers\Admin\ArticleController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\SeriesController;
+use App\Http\Controllers\Admin\TagController;
 use App\Http\Controllers\Admin\TemplateController;
 use App\Http\Controllers\Admin\UserManagementController;
 use App\Http\Controllers\ProfileController;
@@ -22,6 +25,20 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
+// Admin profile routes
+Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/profile', [ProfileController::class, 'index'])->name('profile.index');
+    Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.updatePassword');
+    Route::post('/profile/picture', [ProfileController::class, 'updateProfilePicture'])->name('profile.updateProfilePicture');
+    Route::put('/profile/preferences', [ProfileController::class, 'updatePreferences'])->name('profile.updatePreferences');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    // Profile API routes
+    Route::get('/profile/statistics', [ProfileController::class, 'statistics'])->name('profile.statistics');
+    Route::get('/profile/activity', [ProfileController::class, 'activity'])->name('profile.activity');
+});
+
 // Admin routes (protected by authentication)
 Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', DashboardController::class)->name('dashboard');
@@ -31,14 +48,55 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
         Route::get('/users', [UserManagementController::class, 'index'])->name('users.index');
         Route::get('/users/create', [UserManagementController::class, 'create'])->name('users.create');
         Route::post('/users', [UserManagementController::class, 'store'])->name('users.store');
+        Route::get('/users/{user}', [UserManagementController::class, 'show'])->name('users.show');
+        Route::get('/users/{user}/edit', [UserManagementController::class, 'edit'])->name('users.edit');
+        Route::put('/users/{user}', [UserManagementController::class, 'update'])->name('users.update');
+        Route::delete('/users/{user}', [UserManagementController::class, 'destroy'])->name('users.destroy');
+        Route::post('/users/{user}/toggle-status', [UserManagementController::class, 'toggleStatus'])->name('users.toggleStatus');
+        Route::post('/users/{user}/change-role', [UserManagementController::class, 'changeRole'])->name('users.changeRole');
+
+        // User API routes
+        Route::get('/api/users', [UserManagementController::class, 'apiIndex'])->name('users.api.index');
+        Route::get('/api/users/options', [UserManagementController::class, 'apiOptions'])->name('users.api.options');
+        Route::get('/api/users/search', [UserManagementController::class, 'apiSearch'])->name('users.api.search');
+        Route::get('/users/statistics', [UserManagementController::class, 'statistics'])->name('users.statistics');
+
+        // Bulk operations
+        Route::post('/users/bulk-update-status', [UserManagementController::class, 'bulkUpdateStatus'])->name('users.bulk.update-status');
+        Route::post('/users/bulk-update-role', [UserManagementController::class, 'bulkUpdateRole'])->name('users.bulk.update-role');
         Route::resource('templates', TemplateController::class);
         Route::resource('categories', CategoryController::class);
+        Route::resource('series', SeriesController::class);
+        Route::resource('articles', ArticleController::class);
+        Route::resource('tags', TagController::class);
 
         // Category specific routes
         Route::get('/api/categories', [CategoryController::class, 'apiIndex'])->name('categories.api.index');
         Route::get('/api/categories/options', [CategoryController::class, 'apiOptions'])->name('categories.api.options');
         Route::post('/categories/{category}/move', [CategoryController::class, 'move'])->name('categories.move');
         Route::patch('/categories/{category}/metadata', [CategoryController::class, 'updateMetadata'])->name('categories.metadata.update');
+
+        // Series specific routes
+        Route::get('/api/series', [SeriesController::class, 'apiIndex'])->name('series.api.index');
+        Route::get('/api/series/options', [SeriesController::class, 'apiOptions'])->name('series.api.options');
+        Route::patch('/series/{series}/metadata', [SeriesController::class, 'updateMetadata'])->name('series.metadata.update');
+        Route::post('/series/{series}/reorder-articles', [SeriesController::class, 'reorderArticles'])->name('series.reorder.articles');
+
+        // Article specific routes
+        Route::get('/api/articles', [ArticleController::class, 'apiIndex'])->name('articles.api.index');
+        Route::get('/api/articles/options', [ArticleController::class, 'apiOptions'])->name('articles.api.options');
+        Route::patch('/articles/{article}/metadata', [ArticleController::class, 'updateMetadata'])->name('articles.metadata.update');
+        Route::post('/articles/{article}/publish', [ArticleController::class, 'publish'])->name('articles.publish');
+        Route::post('/articles/{article}/unpublish', [ArticleController::class, 'unpublish'])->name('articles.unpublish');
+
+        // Tag specific routes
+        Route::get('/api/tags', [TagController::class, 'apiIndex'])->name('tags.api.index');
+        Route::get('/api/tags/options', [TagController::class, 'apiOptions'])->name('tags.api.options');
+        Route::get('/api/tags/popular', [TagController::class, 'apiPopular'])->name('tags.api.popular');
+        Route::post('/api/tags/find-or-create', [TagController::class, 'apiFindOrCreate'])->name('tags.api.find-or-create');
+        Route::get('/tags/statistics', [TagController::class, 'statistics'])->name('tags.statistics');
+        Route::post('/tags/cleanup', [TagController::class, 'cleanup'])->name('tags.cleanup');
+        Route::post('/tags/merge-duplicates', [TagController::class, 'mergeDuplicates'])->name('tags.merge-duplicates');
     });
 });
 

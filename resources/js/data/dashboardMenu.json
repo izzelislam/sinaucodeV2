@@ -16,14 +16,24 @@
       "icon": "folder"
     },
     {
+      "label": "Series",
+      "href": "/admin/series",
+      "icon": "series"
+    },
+    {
+      "label": "Articles",
+      "href": "/admin/articles",
+      "icon": "article"
+    },
+    {
+      "label": "Tags",
+      "href": "/admin/tags",
+      "icon": "tag"
+    },
+    {
       "label": "User Management",
       "href": "/admin/users",
-      "icon": "users",
-      "type": "collapsible",
-      "items": [
-        { "label": "All Users", "href": "/admin/users" },
-        { "label": "Create User", "href": "/admin/users/create" }
-      ]
+      "icon": "users"
     },
     {
       "label": "Profile",

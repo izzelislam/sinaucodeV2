@@ -6,16 +6,9 @@ use App\Models\Media;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
-use Intervention\Image\ImageManager;
 
 class MediaService
 {
-    protected ImageManager $imageManager;
-
-    public function __construct()
-    {
-        $this->imageManager = new ImageManager();
-    }
 
     /**
      * Upload a media file and create corresponding database record
@@ -43,11 +36,7 @@ class MediaService
             'mediable_type' => $options['mediable_type'] ?? null,
         ];
 
-        // Process image optimization if it's an image
-        if (str_starts_with($mimeType, 'image/')) {
-            $this->optimizeImage($path, $file, $options);
-        }
-
+  
         return Media::create($mediaData);
     }
 
@@ -234,58 +223,7 @@ class MediaService
         return $file->storeAs($folder, $filename, 'public');
     }
 
-    /**
-     * Optimize image after upload
-     *
-     * @param string $path
-     * @param UploadedFile $file
-     * @param array $options
-     * @return void
-     */
-    private function optimizeImage(string $path, UploadedFile $file, array $options = []): void
-    {
-        $fullPath = storage_path('app/public/' . $path);
-
-        if (!file_exists($fullPath)) {
-            return;
-        }
-
-        $image = $this->imageManager->read($fullPath);
-
-        // Resize if dimensions are specified
-        if (isset($options['max_width']) || isset($options['max_height'])) {
-            $image->resize(
-                $options['max_width'] ?? null,
-                $options['max_height'] ?? null,
-                function ($constraint) {
-                    $constraint->aspectRatio();
-                    $constraint->upsize();
-                }
-            );
-        }
-
-        // Create thumbnail if requested
-        if (isset($options['create_thumbnail']) && $options['create_thumbnail']) {
-            $thumbnailPath = dirname($path) . '/thumbnails/' . basename($path);
-            $thumbnailDir = dirname(storage_path('app/public/' . $thumbnailPath));
-
-            if (!is_dir($thumbnailDir)) {
-                mkdir($thumbnailDir, 0755, true);
-            }
-
-            $thumbnail = $this->imageManager->read($fullPath);
-            $thumbnail->fit(300, 300, function ($constraint) {
-                $constraint->upsize();
-            });
-
-            $thumbnail->save(storage_path('app/public/' . $thumbnailPath), 80);
-        }
-
-        // Optimize and save
-        $quality = $options['quality'] ?? 85;
-        $image->save($fullPath, $quality);
-    }
-
+  
     /**
      * Get storage path URL
      *
@@ -295,22 +233,5 @@ class MediaService
     public function getUrl(Media $media): string
     {
         return asset('storage/' . $media->path);
-    }
-
-    /**
-     * Get thumbnail URL if it exists
-     *
-     * @param Media $media
-     * @return string|null
-     */
-    public function getThumbnailUrl(Media $media): ?string
-    {
-        $thumbnailPath = dirname($media->path) . '/thumbnails/' . basename($media->path);
-
-        if (Storage::disk('public')->exists($thumbnailPath)) {
-            return asset('storage/' . $thumbnailPath);
-        }
-
-        return null;
     }
 }

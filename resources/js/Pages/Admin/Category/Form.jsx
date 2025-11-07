@@ -78,7 +78,12 @@ export default function CategoryForm({ category = null, mode = 'create', parentC
     const isEdit = mode === 'edit' && category;
     const fileInputRef = useRef(null);
     const [isDragging, setIsDragging] = useState(false);
-    const [coverPreview, setCoverPreview] = useState(category?.featured_image?.url ?? null);
+
+    // Debug: Log the category data
+    console.log('Category data in form:', category);
+    console.log('Featured image:', category?.featured_image);
+
+    const [coverPreview, setCoverPreview] = useState(category?.featured_image?.url || null);
     const [objectUrl, setObjectUrl] = useState(null);
 
     const { data, setData, post, put, processing, errors } = useForm({
@@ -160,7 +165,7 @@ export default function CategoryForm({ category = null, mode = 'create', parentC
             URL.revokeObjectURL(objectUrl);
             setObjectUrl(null);
         }
-        setCoverPreview(category?.featured_image?.url ?? null);
+        setCoverPreview(category?.featured_image?.url || null);
         setData('featured_image', null);
     };
 

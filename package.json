@@ -23,7 +23,9 @@
         "vite": "^7.2.1"
     },
     "dependencies": {
+        "@heroicons/react": "^2.2.0",
         "@inertiajs/react": "^2.2.15",
+        "date-fns": "^4.1.0",
         "quill": "^2.0.2",
         "react": "^19.2.0",
         "react-dom": "^19.2.0",

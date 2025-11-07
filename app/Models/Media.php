@@ -12,12 +12,17 @@ class Media extends Model
     protected $fillable = [
         'filename',
         'path',
+        'url',
         'mime_type',
         'alt_text',
         'caption',
         'mediable_id',
         'mediable_type',
         'tag',
+    ];
+
+    protected $appends = [
+        'url',
     ];
 
     // Relationships
@@ -68,6 +73,14 @@ class Media extends Model
     public function getUrl(): string
     {
         return asset('storage/' . $this->path);
+    }
+
+    /**
+     * Get the URL attribute for the media file
+     */
+    public function getUrlAttribute(): string
+    {
+        return $this->getUrl();
     }
 
     public function getDisplaySize(): string

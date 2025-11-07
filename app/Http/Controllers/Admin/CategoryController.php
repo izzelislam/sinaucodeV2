@@ -72,6 +72,7 @@ class CategoryController extends Controller
     public function show(int $id): Response
     {
         $category = $this->categoryService->getCategoryById($id);
+        // dd($category->toArray());
 
         return Inertia::render('Admin/Category/Show', [
             'category' => $category,

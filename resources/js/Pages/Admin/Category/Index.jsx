@@ -103,7 +103,7 @@ export default function CategoryIndex({ categories, filters = {}, statusOptions 
         <DashboardLayout>
             <Head title="Category Management" />
 
-            <div className="mx-auto max-w-7xl space-y-8">
+            <div className="mx-auto max-w-full space-y-8">
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <div>
                         <p className="text-sm font-semibold uppercase tracking-wide text-brand-600">Category Management</p>

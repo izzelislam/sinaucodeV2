@@ -59,7 +59,7 @@ const ThemeToggle = ({ className = '' }) => {
   };
 
   const classes = [
-    'rounded-lg p-2 text-slate-600 transition hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500',
+    'rounded-lg p-2 text-slate-600 dark:text-slate-400 transition hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500',
     className,
   ]
     .filter(Boolean)

@@ -19,6 +19,10 @@ class Category extends Model
         'meta_description',
     ];
 
+    protected $appends = [
+        'has_featured_image',
+    ];
+
     /**
      * Get the options for generating the slug.
      */
@@ -81,5 +85,13 @@ class Category extends Model
             return $this->parent->getFullPath() . ' / ' . $this->name;
         }
         return $this->name;
+    }
+
+    /**
+     * Check if category has a featured image
+     */
+    public function getHasFeaturedImageAttribute(): bool
+    {
+        return $this->featuredImage !== null;
     }
 }
