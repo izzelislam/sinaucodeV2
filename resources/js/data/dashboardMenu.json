@@ -1,0 +1,34 @@
+{
+  "main": [
+    {
+      "label": "Dashboard",
+      "href": "/admin/dashboard",
+      "icon": "home"
+    },
+    {
+      "label": "Templates",
+      "href": "/admin/templates",
+      "icon": "stack"
+    },
+    {
+      "label": "Categories",
+      "href": "/admin/categories",
+      "icon": "folder"
+    },
+    {
+      "label": "User Management",
+      "href": "/admin/users",
+      "icon": "users",
+      "type": "collapsible",
+      "items": [
+        { "label": "All Users", "href": "/admin/users" },
+        { "label": "Create User", "href": "/admin/users/create" }
+      ]
+    },
+    {
+      "label": "Profile",
+      "href": "/profile",
+      "icon": "profile"
+    }
+  ]
+}
