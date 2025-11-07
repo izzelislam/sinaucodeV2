@@ -3,7 +3,7 @@ import { Head, Link, router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import {
     UserIcon,
-    MailIcon,
+    EnvelopeIcon,
     ShieldCheckIcon,
     DocumentTextIcon,
     CalendarIcon,
@@ -130,7 +130,7 @@ const Show = ({ auth, user }) => {
                                     <div>
                                         <h1 className="text-2xl font-bold text-slate-900">{user.name}</h1>
                                         <p className="text-slate-600 flex items-center gap-2 mt-1">
-                                            <MailIcon className="h-4 w-4" />
+                                            <EnvelopeIcon className="h-4 w-4" />
                                             {user.email}
                                         </p>
                                     </div>
@@ -249,7 +249,7 @@ const Show = ({ auth, user }) => {
                                                         href={route('admin.articles.index', { author: user.id })}
                                                         className="text-sm text-brand-600 hover:text-brand-800 font-medium"
                                                     >
-                                                        View all {user.articles_count} articles ’
+                                                        View all {user.articles_count} articles ï¿½
                                                     </Link>
                                                 </div>
                                             )}

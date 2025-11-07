@@ -1,4 +1,4 @@
-const Hero = ({ searchValue = '', onSearchChange, onSearchSubmit }) => {
+const Hero = ({ searchValue = '', onSearchChange, onSearchSubmit, categories = [], onCategorySelect }) => {
   const handleSubmit = (event) => {
     event.preventDefault();
     onSearchSubmit?.();
@@ -44,6 +44,23 @@ const Hero = ({ searchValue = '', onSearchChange, onSearchSubmit }) => {
             Search
           </button>
         </form>
+        {categories.length > 0 && (
+          <div className="mx-auto mt-6 max-w-2xl text-left">
+            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400">Browse by category</p>
+            <div className="-mx-1 mt-3 flex gap-2 overflow-x-auto pb-1">
+              {categories.map((category) => (
+                <button
+                  key={category}
+                  type="button"
+                  onClick={() => onCategorySelect?.(category)}
+                  className="mx-1 inline-flex items-center rounded-full border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:border-slate-600 dark:hover:bg-slate-800"
+                >
+                  {category}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </section>
   );
