@@ -15,6 +15,24 @@ hljs.configure({
     languages: ['javascript', 'python', 'java', 'cpp', 'csharp', 'php', 'ruby', 'go', 'rust', 'typescript', 'html', 'css', 'sql', 'bash', 'json', 'xml', 'yaml']
 });
 
+// Register custom code block with language attribute
+const CodeBlock = Quill.import('formats/code-block');
+class CustomCodeBlock extends CodeBlock {
+    static create(value) {
+        const node = super.create(value);
+        if (typeof value === 'string') {
+            node.setAttribute('data-language', value);
+            node.className = `ql-syntax language-${value}`;
+        }
+        return node;
+    }
+    
+    static formats(node) {
+        return node.getAttribute('data-language') || 'plaintext';
+    }
+}
+Quill.register(CustomCodeBlock, true);
+
 const FormSection = ({ title, description, children }) => (
     <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xl space-y-6">
         <div>
@@ -299,14 +317,293 @@ export default function ArticleForm({ article = null, mode = 'create', seriesOpt
 
     const quillModules = useMemo(
         () => ({
-            toolbar: [
-                [{ header: [1, 2, 3, false] }],
-                ['bold', 'italic', 'underline', 'strike'],
-                [{ list: 'ordered' }, { list: 'bullet' }],
-                ['link', 'blockquote', 'code-block'],
-                [{ color: [] }, { background: [] }],
-                ['clean'],
-            ],
+            toolbar: {
+                container: [
+                    [{ header: [1, 2, 3, false] }],
+                    ['bold', 'italic', 'underline', 'strike'],
+                    [{ list: 'ordered' }, { list: 'bullet' }],
+                    ['link', 'blockquote'],
+                    [{ 'code-block': 'plaintext' }],
+                    [{ color: [] }, { background: [] }],
+                    ['clean'],
+                ],
+                handlers: {
+                    'code-block': function(value) {
+                        const range = this.quill.getSelection();
+                        if (range) {
+                            // Get current format
+                            const currentFormat = this.quill.getFormat(range);
+                            
+                            // Language groups with icons
+                            const languageGroups = {
+                                'Popular': [
+                                    { value: 'javascript', label: 'JavaScript', icon: '📜' },
+                                    { value: 'typescript', label: 'TypeScript', icon: '📘' },
+                                    { value: 'python', label: 'Python', icon: '🐍' },
+                                    { value: 'java', label: 'Java', icon: '☕' },
+                                ],
+                                'Web': [
+                                    { value: 'html', label: 'HTML', icon: '🌐' },
+                                    { value: 'css', label: 'CSS', icon: '🎨' },
+                                    { value: 'php', label: 'PHP', icon: '🐘' },
+                                ],
+                                'Systems': [
+                                    { value: 'cpp', label: 'C++', icon: '⚙️' },
+                                    { value: 'csharp', label: 'C#', icon: '💎' },
+                                    { value: 'rust', label: 'Rust', icon: '🦀' },
+                                    { value: 'go', label: 'Go', icon: '🐹' },
+                                ],
+                                'Scripting': [
+                                    { value: 'bash', label: 'Bash', icon: '💻' },
+                                    { value: 'ruby', label: 'Ruby', icon: '💎' },
+                                ],
+                                'Data': [
+                                    { value: 'sql', label: 'SQL', icon: '🗄️' },
+                                    { value: 'json', label: 'JSON', icon: '📋' },
+                                    { value: 'xml', label: 'XML', icon: '📄' },
+                                    { value: 'yaml', label: 'YAML', icon: '📝' },
+                                ],
+                                'Other': [
+                                    { value: 'plaintext', label: 'Plain Text', icon: '📝' },
+                                ]
+                            };
+                            
+                            // If already in code block, toggle it off
+                            if (currentFormat['code-block']) {
+                                this.quill.format('code-block', false);
+                                return;
+                            }
+                            
+                            // Remove existing dropdown
+                            const existingDropdown = document.querySelector('.ql-language-picker-container');
+                            if (existingDropdown) {
+                                existingDropdown.remove();
+                            }
+                            
+                            // Create modal container
+                            const modal = document.createElement('div');
+                            modal.className = 'ql-language-picker-container';
+                            modal.style.cssText = `
+                                position: fixed;
+                                top: 0;
+                                left: 0;
+                                right: 0;
+                                bottom: 0;
+                                background: rgba(0, 0, 0, 0.5);
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                                z-index: 9999;
+                                backdrop-filter: blur(4px);
+                                animation: fadeIn 0.2s ease;
+                            `;
+                            
+                            // Create picker dialog
+                            const picker = document.createElement('div');
+                            picker.className = 'ql-language-picker';
+                            picker.style.cssText = `
+                                background: white;
+                                border-radius: 1rem;
+                                box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+                                max-width: 600px;
+                                width: 90%;
+                                max-height: 80vh;
+                                overflow: hidden;
+                                display: flex;
+                                flex-direction: column;
+                                animation: slideUp 0.3s ease;
+                            `;
+                            
+                            // Header
+                            const header = document.createElement('div');
+                            header.style.cssText = `
+                                padding: 1.5rem;
+                                border-bottom: 1px solid #e2e8f0;
+                                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                            `;
+                            header.innerHTML = `
+                                <h3 style="margin: 0; font-size: 1.25rem; font-weight: 600; color: white; display: flex; align-items: center; gap: 0.5rem;">
+                                    <span style="font-size: 1.5rem;">💻</span>
+                                    Select Programming Language
+                                </h3>
+                                <p style="margin: 0.5rem 0 0 0; font-size: 0.875rem; color: rgba(255,255,255,0.9);">
+                                    Choose the language for syntax highlighting
+                                </p>
+                            `;
+                            
+                            // Search box
+                            const searchContainer = document.createElement('div');
+                            searchContainer.style.cssText = `
+                                padding: 1rem 1.5rem;
+                                border-bottom: 1px solid #e2e8f0;
+                                background: #f8fafc;
+                            `;
+                            
+                            const searchBox = document.createElement('input');
+                            searchBox.type = 'text';
+                            searchBox.placeholder = '🔍 Search languages...';
+                            searchBox.className = 'language-search';
+                            searchBox.style.cssText = `
+                                width: 100%;
+                                padding: 0.75rem 1rem;
+                                border: 2px solid #e2e8f0;
+                                border-radius: 0.5rem;
+                                font-size: 0.875rem;
+                                outline: none;
+                                transition: all 0.2s;
+                            `;
+                            searchBox.addEventListener('focus', () => {
+                                searchBox.style.borderColor = '#667eea';
+                                searchBox.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
+                            });
+                            searchBox.addEventListener('blur', () => {
+                                searchBox.style.borderColor = '#e2e8f0';
+                                searchBox.style.boxShadow = 'none';
+                            });
+                            
+                            searchContainer.appendChild(searchBox);
+                            
+                            // Content container
+                            const content = document.createElement('div');
+                            content.style.cssText = `
+                                flex: 1;
+                                overflow-y: auto;
+                                padding: 1rem;
+                            `;
+                            
+                            // Create language groups
+                            Object.entries(languageGroups).forEach(([groupName, languages]) => {
+                                const group = document.createElement('div');
+                                group.className = 'language-group';
+                                group.style.cssText = `
+                                    margin-bottom: 1.5rem;
+                                `;
+                                
+                                const groupTitle = document.createElement('div');
+                                groupTitle.style.cssText = `
+                                    font-size: 0.75rem;
+                                    font-weight: 600;
+                                    text-transform: uppercase;
+                                    color: #64748b;
+                                    margin-bottom: 0.5rem;
+                                    padding: 0 0.5rem;
+                                    letter-spacing: 0.05em;
+                                `;
+                                groupTitle.textContent = groupName;
+                                
+                                const grid = document.createElement('div');
+                                grid.style.cssText = `
+                                    display: grid;
+                                    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+                                    gap: 0.5rem;
+                                `;
+                                
+                                languages.forEach(lang => {
+                                    const button = document.createElement('button');
+                                    button.type = 'button';
+                                    button.className = 'language-option';
+                                    button.dataset.value = lang.value;
+                                    button.dataset.label = lang.label.toLowerCase();
+                                    button.style.cssText = `
+                                        padding: 0.75rem;
+                                        border: 2px solid #e2e8f0;
+                                        border-radius: 0.5rem;
+                                        background: white;
+                                        cursor: pointer;
+                                        transition: all 0.2s;
+                                        text-align: left;
+                                        display: flex;
+                                        align-items: center;
+                                        gap: 0.5rem;
+                                        font-size: 0.875rem;
+                                    `;
+                                    
+                                    button.innerHTML = `
+                                        <span style="font-size: 1.25rem;">${lang.icon}</span>
+                                        <span style="font-weight: 500; color: #1e293b;">${lang.label}</span>
+                                    `;
+                                    
+                                    button.addEventListener('mouseenter', () => {
+                                        button.style.borderColor = '#667eea';
+                                        button.style.background = '#f0f4ff';
+                                        button.style.transform = 'translateY(-2px)';
+                                        button.style.boxShadow = '0 4px 6px -1px rgb(0 0 0 / 0.1)';
+                                    });
+                                    
+                                    button.addEventListener('mouseleave', () => {
+                                        button.style.borderColor = '#e2e8f0';
+                                        button.style.background = 'white';
+                                        button.style.transform = 'translateY(0)';
+                                        button.style.boxShadow = 'none';
+                                    });
+                                    
+                                    button.addEventListener('click', () => {
+                                        this.quill.format('code-block', lang.value);
+                                        modal.remove();
+                                    });
+                                    
+                                    grid.appendChild(button);
+                                });
+                                
+                                group.appendChild(groupTitle);
+                                group.appendChild(grid);
+                                content.appendChild(group);
+                            });
+                            
+                            // Search functionality
+                            searchBox.addEventListener('input', (e) => {
+                                const searchTerm = e.target.value.toLowerCase();
+                                const allButtons = content.querySelectorAll('.language-option');
+                                const allGroups = content.querySelectorAll('.language-group');
+                                
+                                allButtons.forEach(button => {
+                                    const label = button.dataset.label;
+                                    if (label.includes(searchTerm)) {
+                                        button.style.display = 'flex';
+                                    } else {
+                                        button.style.display = 'none';
+                                    }
+                                });
+                                
+                                // Hide empty groups
+                                allGroups.forEach(group => {
+                                    const visibleButtons = group.querySelectorAll('.language-option[style*="display: flex"]');
+                                    if (visibleButtons.length === 0) {
+                                        group.style.display = 'none';
+                                    } else {
+                                        group.style.display = 'block';
+                                    }
+                                });
+                            });
+                            
+                            // Assemble modal
+                            picker.appendChild(header);
+                            picker.appendChild(searchContainer);
+                            picker.appendChild(content);
+                            modal.appendChild(picker);
+                            
+                            // Close on backdrop click
+                            modal.addEventListener('click', (e) => {
+                                if (e.target === modal) {
+                                    modal.remove();
+                                }
+                            });
+                            
+                            // Close on Escape key
+                            const escapeHandler = (e) => {
+                                if (e.key === 'Escape') {
+                                    modal.remove();
+                                    document.removeEventListener('keydown', escapeHandler);
+                                }
+                            };
+                            document.addEventListener('keydown', escapeHandler);
+                            
+                            document.body.appendChild(modal);
+                            searchBox.focus();
+                        }
+                    }
+                }
+            },
             syntax: {
                 highlight: text => hljs.highlightAuto(text).value
             }
