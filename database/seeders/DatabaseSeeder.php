@@ -19,6 +19,10 @@ class DatabaseSeeder extends Seeder
             SuperAdminSeeder::class,
             AdminSeeder::class,
             PenulisSeeder::class,
+            CategorySeeder::class,
+            TagSeeder::class,
+            SeriesSeeder::class,
+            ArticleSeeder::class,
         ]);
 
         // You can uncomment this for testing

@@ -1,6 +1,223 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Hide scrollbar but keep functionality */
+.scrollbar-hide {
+    -ms-overflow-style: none;  /* Internet Explorer 10+ */
+    scrollbar-width: none;  /* Firefox */
+}
+.scrollbar-hide::-webkit-scrollbar {
+    display: none;  /* Safari and Chrome */
+}
+
+/* Show scrollbar on hover for tag container */
+.tag-scroll-container:hover {
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 #f1f5f9;
+}
+.tag-scroll-container:hover::-webkit-scrollbar {
+    display: block;
+    height: 4px;
+}
+
+/* Custom tag scrollbar styles */
+.tag-scroll-container {
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 #f1f5f9;
+}
+
+.tag-scroll-container::-webkit-scrollbar {
+    height: 4px;
+}
+
+.tag-scroll-container::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 2px;
+}
+
+.tag-scroll-container::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 2px;
+}
+
+.tag-scroll-container::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+.dark .tag-scroll-container {
+    scrollbar-color: #475569 #1e293b;
+}
+
+.dark .tag-scroll-container::-webkit-scrollbar-track {
+    background: #1e293b;
+}
+
+.dark .tag-scroll-container::-webkit-scrollbar-thumb {
+    background: #475569;
+}
+
+.dark .tag-scroll-container::-webkit-scrollbar-thumb:hover {
+    background: #64748b;
+}
+
+/* Article content styling */
+.article-content {
+    @apply prose prose-lg max-w-none;
+}
+
+.article-content h1,
+.article-content h2,
+.article-content h3,
+.article-content h4,
+.article-content h5,
+.article-content h6 {
+    @apply scroll-mt-8;
+}
+
+.article-content h1 {
+    @apply text-3xl font-bold text-slate-900 dark:text-white mt-8 mb-4;
+}
+
+.article-content h2 {
+    @apply text-2xl font-semibold text-slate-900 dark:text-white mt-6 mb-3;
+}
+
+.article-content h3 {
+    @apply text-xl font-semibold text-slate-900 dark:text-white mt-5 mb-2;
+}
+
+.article-content h4 {
+    @apply text-lg font-semibold text-slate-900 dark:text-white mt-4 mb-2;
+}
+
+.article-content p {
+    @apply text-slate-700 dark:text-slate-300 leading-relaxed mb-4;
+}
+
+.article-content blockquote {
+    @apply border-l-4 border-sky-500 pl-4 italic text-slate-600 dark:text-slate-400 my-4;
+}
+
+.article-content pre {
+    @apply bg-slate-900 dark:bg-slate-950 rounded-lg overflow-x-auto my-4 relative;
+    padding: 0 !important;
+}
+
+.article-content code {
+    @apply bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded text-sm;
+    color: #e11d48;
+    font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
+}
+
+.article-content pre code {
+    @apply bg-transparent text-sm;
+    padding: 1rem !important;
+    display: block;
+    color: #e2e8f0;
+    font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
+}
+
+/* Code block header styles */
+.article-content .code-header {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+/* Language badge in code blocks */
+.article-content .language-badge {
+    user-select: none;
+}
+
+/* Copy button in code blocks */
+.article-content .copy-code-btn {
+    font-size: 0.75rem;
+}
+
+.article-content .copy-code-btn:hover {
+    transform: scale(1.05);
+}
+
+.article-content .copy-code-btn:active {
+    transform: scale(0.95);
+}
+
+.article-content ul,
+.article-content ol {
+    @apply pl-6 mb-4;
+}
+
+.article-content li {
+    @apply text-slate-700 dark:text-slate-300 mb-2;
+}
+
+.article-content img {
+    @apply rounded-lg shadow-md my-6;
+}
+
+.article-content a {
+    @apply text-sky-600 hover:text-sky-500 dark:text-sky-400 dark:hover:text-sky-300 underline;
+}
+
+/* Table of contents active state */
+.toc-active {
+    @apply text-sky-600 dark:text-sky-400 font-medium;
+}
+
+/* Smooth scroll behavior */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Custom selection */
+::selection {
+    @apply bg-sky-100 dark:bg-sky-900/30 text-slate-900 dark:text-slate-100;
+}
+
+/* Disqus comment styling */
+#disqus_thread {
+    background: transparent !important;
+}
+
+#disqus_thread iframe {
+    background: white !important;
+}
+
+.dark #disqus_thread iframe {
+    background: #1e293b !important;
+}
+
+/* Disqus loading state */
+.disqus-loading {
+    background: white;
+    border: 1px solid rgb(226 232 240);
+    border-radius: 0.75rem;
+    padding: 2rem;
+    text-align: center;
+}
+
+.dark .disqus-loading {
+    border-color: rgb(51 65 85);
+    background: rgb(30 41 59);
+}
+
+/* Algolia search highlighting */
+.algolia-search-result em {
+    font-style: normal;
+    font-weight: 600;
+    color: #0284c7;
+    background-color: #e0f2fe;
+    padding: 0.125rem 0.25rem;
+    border-radius: 0.25rem;
+}
+
+.dark .algolia-search-result em {
+    color: #7dd3fc;
+    background-color: #0c4a6e;
+}
 
 .quill-wrapper {
     border: 1px solid #e2e8f0;

@@ -4,12 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Laravel\Scout\Searchable;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
 class Series extends Model
 {
-    use HasFactory, HasSlug;
+    use HasFactory, HasSlug, Searchable;
 
     protected $fillable = [
         'name',
@@ -79,5 +80,34 @@ class Series extends Model
     public function getHasFeaturedImageAttribute(): bool
     {
         return $this->featuredImage !== null;
+    }
+
+    /**
+     * Get the indexable data array for the model.
+     *
+     * @return array
+     */
+    public function toSearchableArray()
+    {
+        return [
+            'id' => $this->id,
+            'name' => $this->name,
+            'slug' => $this->slug,
+            'description' => $this->description,
+            'article_count' => $this->getArticleCount(),
+            'published_article_count' => $this->getPublishedArticleCount(),
+            'featured_image' => $this->featuredImage?->url,
+            'latest_article_date' => $this->publishedArticles()->latest('published_at')->value('published_at'),
+        ];
+    }
+
+    /**
+     * Get the Scout index name for the model.
+     *
+     * @return string
+     */
+    public function searchableAs()
+    {
+        return 'series';
     }
 }

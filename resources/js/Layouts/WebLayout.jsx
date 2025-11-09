@@ -1,18 +1,33 @@
-import { useState } from 'react';
-import { Link } from '@inertiajs/react';
+import { useState, useEffect } from 'react';
+import { Link, usePage } from '@inertiajs/react';
 import ThemeToggle from '../Components/Web/ThemeToggle';
+import AlgoliaSearchModal from '../Components/Web/AlgoliaSearch';
 
 const NAV_LINKS = [
   { label: 'Home', href: '/' },
-  { label: 'Search', href: '/search' },
   { label: 'GitHub', href: 'https://github.com/', external: true },
 ];
 
 const WebLayout = ({ children, auth }) => {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const { algolia } = usePage().props;
 
   const closeMenu = () => setMenuOpen(false);
   const toggleMenu = () => setMenuOpen((prev) => !prev);
+
+  // CMD+K / CTRL+K to open search
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        setSearchOpen(true);
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   return (
     <div className="min-h-screen bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 antialiased selection:bg-sky-200 dark:selection:bg-sky-900 selection:text-slate-900 dark:selection:text-slate-100 transition-colors">
@@ -21,7 +36,8 @@ const WebLayout = ({ children, auth }) => {
           <Link href="/" className="flex items-center gap-2" onClick={closeMenu}>
             {/* <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-sky-600 text-white">TT</span>
             <span className="text-lg font-semibold">TechTutor</span> */}
-            <img src="/sinaucode-black.png" alt="TechTutor Logo" className="h-8 w-auto" />
+            <img src="/sinaucode-black.png" alt="TechTutor Logo" className="h-8 w-auto dark:hidden" />
+            <img src="/sinaucode-white.png" alt="TechTutor Logo" className="h-8 w-auto hidden dark:block" />
           </Link>
           <nav className="hidden items-center gap-6 sm:flex">
             {NAV_LINKS.map((link) => {
@@ -40,6 +56,20 @@ const WebLayout = ({ children, auth }) => {
               );
             })}
 
+            {/* Search Button */}
+            <button
+              onClick={() => setSearchOpen(true)}
+              className="flex items-center gap-2 px-3 py-1.5 text-sm text-slate-600 dark:text-slate-400 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg hover:border-slate-400 dark:hover:border-slate-500 transition"
+            >
+              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+              <span className="hidden lg:inline">Search</span>
+              <kbd className="hidden lg:inline-flex items-center gap-0.5 px-1.5 py-0.5 text-xs font-medium bg-slate-100 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded">
+                <span>⌘</span>K
+              </kbd>
+            </button>
+
             {/* Dashboard link for authenticated users */}
             {auth?.user && (
               <Link
@@ -56,15 +86,15 @@ const WebLayout = ({ children, auth }) => {
             <ThemeToggle />
           </nav>
           <div className="flex items-center gap-2 sm:hidden">
-            <a
-              href="/search"
-              className="rounded-lg p-2 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100"
+            <button
+              onClick={() => setSearchOpen(true)}
+              className="rounded-lg p-2 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition"
               aria-label="Search"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M21 20.3 16.65 16a7.5 7.5 0 1 0-1.4 1.4L20.3 21 21 20.3ZM4 10.5a6.5 6.5 0 1 1 13 0 6.5 6.5 0 0 1-13 0Z" />
+              <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
-            </a>
+            </button>
             <ThemeToggle className="sm:hidden" />
             <button
               type="button"
@@ -120,6 +150,15 @@ const WebLayout = ({ children, auth }) => {
       </header>
 
       <main>{children}</main>
+
+      {/* Algolia Search Modal */}
+      {algolia?.appId && algolia?.searchApiKey && (
+        <AlgoliaSearchModal
+          isOpen={searchOpen}
+          onClose={() => setSearchOpen(false)}
+          algoliaConfig={algolia}
+        />
+      )}
 
       <footer className="border-t border-slate-200 dark:border-slate-800 py-10">
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-4 text-sm text-slate-500 dark:text-slate-400 sm:flex-row sm:px-6 lg:px-8">

@@ -14,6 +14,14 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 Route::get('/', HomeController::class)->name('home');
+Route::get('/article/{slug}', [HomeController::class, 'show'])->name('article.show');
+
+// Search routes
+Route::prefix('api/search')->name('search.')->group(function () {
+    Route::get('/', [App\Http\Controllers\Web\SearchController::class, 'search'])->name('search');
+    Route::get('/suggestions', [App\Http\Controllers\Web\SearchController::class, 'suggestions'])->name('suggestions');
+    Route::get('/facets', [App\Http\Controllers\Web\SearchController::class, 'facets'])->name('facets');
+});
 
 Route::get('/dashboard', function () {
     return redirect()->route('admin.dashboard');

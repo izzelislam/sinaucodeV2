@@ -5,8 +5,15 @@ import TextInput from '@/Components/TextInput';
 import DashboardLayout from '@/Layouts/DashboardLayout';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import ReactQuill from 'react-quill';
+import ReactQuill, { Quill } from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
+import hljs from 'highlight.js';
+import 'highlight.js/styles/github-dark.css';
+
+// Configure highlight.js for Quill
+hljs.configure({
+    languages: ['javascript', 'python', 'java', 'cpp', 'csharp', 'php', 'ruby', 'go', 'rust', 'typescript', 'html', 'css', 'sql', 'bash', 'json', 'xml', 'yaml']
+});
 
 const FormSection = ({ title, description, children }) => (
     <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xl space-y-6">
@@ -300,6 +307,9 @@ export default function ArticleForm({ article = null, mode = 'create', seriesOpt
                 [{ color: [] }, { background: [] }],
                 ['clean'],
             ],
+            syntax: {
+                highlight: text => hljs.highlightAuto(text).value
+            }
         }),
         []
     );

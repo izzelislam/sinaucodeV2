@@ -5,12 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
+use Laravel\Scout\Searchable;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
 class Article extends Model
 {
-    use HasFactory, HasSlug;
+    use HasFactory, HasSlug, Searchable;
 
     protected $fillable = [
         'title',
@@ -116,5 +117,63 @@ class Article extends Model
     public function getHasFeaturedImageAttribute(): bool
     {
         return $this->featuredImage !== null;
+    }
+
+    /**
+     * Get the indexable data array for the model.
+     *
+     * @return array
+     */
+    public function toSearchableArray()
+    {
+        // Truncate content to prevent exceeding Algolia's record size limit
+        $content = strip_tags($this->content);
+        $content = Str::limit($content, 8000); // Limit to ~8000 characters to stay well under 10KB
+
+        return [
+            'id' => $this->id,
+            'title' => $this->title,
+            'content' => $content,
+            'excerpt' => $this->excerpt,
+            'category' => $this->categories->first()?->name ?? 'Uncategorized',
+            'tags' => $this->tags->pluck('name')->toArray(),
+            'author_name' => $this->author?->name ?? 'Anonymous',
+            'published_at' => $this->published_at?->timestamp,
+            'status' => $this->status,
+            'views' => $this->viewers->count() ?? 0,
+            'featured_image' => $this->featuredImage?->url,
+            'read_time' => $this->calculateReadTime($this->content),
+            'slug' => $this->slug,
+        ];
+    }
+
+    /**
+     * Determine if the model should be searchable.
+     *
+     * @return bool
+     */
+    public function shouldBeSearchable()
+    {
+        return $this->isPublished();
+    }
+
+    /**
+     * Get the Scout index name for the model.
+     *
+     * @return string
+     */
+    public function searchableAs()
+    {
+        return 'articles';
+    }
+
+    /**
+     * Calculate reading time for content
+     */
+    private function calculateReadTime(string $content): int
+    {
+        $wordCount = str_word_count(strip_tags($content));
+        $wordsPerMinute = 200; // Average reading speed
+        return max(1, ceil($wordCount / $wordsPerMinute));
     }
 }

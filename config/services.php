@@ -35,4 +35,8 @@ return [
         ],
     ],
 
+    'disqus' => [
+        'shortname' => env('VITE_DISQUS_SHORTNAME'),
+    ],
+
 ];

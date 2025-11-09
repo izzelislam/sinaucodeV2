@@ -4,15 +4,17 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Laravel\Scout\Searchable;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
 class Category extends Model
 {
-    use HasFactory, HasSlug;
+    use HasFactory, HasSlug, Searchable;
 
     protected $fillable = [
         'name',
+        'slug',
         'description',
         'parent_id',
         'meta_title',
@@ -93,5 +95,36 @@ class Category extends Model
     public function getHasFeaturedImageAttribute(): bool
     {
         return $this->featuredImage !== null;
+    }
+
+    /**
+     * Get the indexable data array for the model.
+     *
+     * @return array
+     */
+    public function toSearchableArray()
+    {
+        return [
+            'id' => $this->id,
+            'name' => $this->name,
+            'slug' => $this->slug,
+            'description' => $this->description,
+            'meta_title' => $this->meta_title,
+            'meta_description' => $this->meta_description,
+            'article_count' => $this->articles()->count(),
+            'has_children' => $this->hasChildren(),
+            'parent_name' => $this->parent?->name,
+            'featured_image' => $this->featuredImage?->url,
+        ];
+    }
+
+    /**
+     * Get the Scout index name for the model.
+     *
+     * @return string
+     */
+    public function searchableAs()
+    {
+        return 'categories';
     }
 }
