@@ -93,7 +93,7 @@ class ProfileService
             $user->profilePicture()->create([
                 'filename' => $file->getClientOriginalName(),
                 'path' => $path,
-                'url' => Storage::url($path),
+                'mime_type' => $file->getMimeType(),
                 'tag' => 'profile_picture',
             ]);
 

@@ -34,6 +34,7 @@ const Index = ({ auth, profile, preferences, mustVerifyEmail, status }) => {
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [showPasswordForm, setShowPasswordForm] = useState(false);
     const [uploadingPicture, setUploadingPicture] = useState(false);
+    const [previewImage, setPreviewImage] = useState(null);
     const fileInputRef = useRef(null);
 
     const user = profile.user;
@@ -126,18 +127,48 @@ const Index = ({ auth, profile, preferences, mustVerifyEmail, status }) => {
         const file = e.target.files[0];
         if (!file) return;
 
+        // Validate file size (2MB max)
+        if (file.size > 2 * 1024 * 1024) {
+            alert('File size must be less than 2MB');
+            return;
+        }
+
+        // Validate file type
+        if (!file.type.startsWith('image/')) {
+            alert('File must be an image');
+            return;
+        }
+
+        // Create preview
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            setPreviewImage(reader.result);
+        };
+        reader.readAsDataURL(file);
+
         setUploadingPicture(true);
 
         const formData = new FormData();
         formData.append('profile_picture', file);
 
         router.post(route('admin.profile.updateProfilePicture'), formData, {
-            onSuccess: () => {
+            onSuccess: (page) => {
                 setUploadingPicture(false);
+                setPreviewImage(null);
                 fileInputRef.current.value = '';
+                // Force a page reload to show the updated profile picture
+                window.location.reload();
             },
-            onError: () => {
+            onError: (errors) => {
                 setUploadingPicture(false);
+                setPreviewImage(null);
+                fileInputRef.current.value = '';
+                // Show error message
+                if (errors.profile_picture) {
+                    alert(errors.profile_picture);
+                } else {
+                    alert('Failed to upload profile picture');
+                }
             }
         });
     };
@@ -177,7 +208,7 @@ const Index = ({ auth, profile, preferences, mustVerifyEmail, status }) => {
                             <div className="flex items-center gap-4">
                                 <div className="relative">
                                     <img
-                                        src={user.profile_picture_url}
+                                        src={previewImage || user.profile_picture_url}
                                         alt={user.name}
                                         className="h-20 w-20 rounded-full object-cover ring-4 ring-white shadow-lg"
                                     />
@@ -185,6 +216,7 @@ const Index = ({ auth, profile, preferences, mustVerifyEmail, status }) => {
                                         onClick={() => fileInputRef.current?.click()}
                                         disabled={uploadingPicture}
                                         className="absolute bottom-0 right-0 h-7 w-7 rounded-full bg-brand-600 text-white flex items-center justify-center hover:bg-brand-700 transition-colors disabled:opacity-50"
+                                        title="Change profile picture"
                                     >
                                         {uploadingPicture ? (
                                             <ClockIcon className="h-4 w-4 animate-spin" />
@@ -197,8 +229,14 @@ const Index = ({ auth, profile, preferences, mustVerifyEmail, status }) => {
                                         type="file"
                                         accept="image/*"
                                         onChange={handleProfilePictureUpload}
+                                        disabled={uploadingPicture}
                                         className="hidden"
                                     />
+                                    {previewImage && (
+                                        <div className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-green-500 flex items-center justify-center">
+                                            <span className="text-white text-xs">✓</span>
+                                        </div>
+                                    )}
                                 </div>
                                 <div className="flex-1">
                                     <h1 className="text-2xl font-bold text-slate-900">{user.name}</h1>
