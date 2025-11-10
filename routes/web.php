@@ -16,6 +16,54 @@ use Inertia\Inertia;
 Route::get('/', HomeController::class)->name('home');
 Route::get('/article/{slug}', [HomeController::class, 'show'])->name('article.show');
 
+// Sitemap route
+Route::get('/sitemap.xml', function () {
+    $sitemapPath = public_path('sitemap.xml');
+
+    if (!file_exists($sitemapPath)) {
+        // Generate sitemap on-the-fly if it doesn't exist
+        \Artisan::call('sitemap:generate');
+    }
+
+    $sitemapContent = file_get_contents($sitemapPath);
+
+    return response($sitemapContent, 200, [
+        'Content-Type' => 'application/xml; charset=utf-8',
+        'Cache-Control' => 'public, max-age=3600', // Cache for 1 hour
+    ]);
+})->name('sitemap');
+
+// Robots.txt route
+Route::get('/robots.txt', function () {
+    $robotsPath = public_path('robots.txt');
+
+    if (file_exists($robotsPath)) {
+        $robotsContent = file_get_contents($robotsPath);
+        // Replace dynamic placeholders
+        $robotsContent = str_replace('http://sinaucode.test/sitemap.xml', url('/sitemap.xml'), $robotsContent);
+        $robotsContent = str_replace('Host: sinaucode.test', 'Host: ' . parse_url(config('app.url'), PHP_URL_HOST), $robotsContent);
+    } else {
+        // Create a default robots.txt if it doesn't exist
+        $robotsContent = "User-agent: *\n";
+        $robotsContent .= "Allow: /\n";
+        $robotsContent .= "Disallow: /admin/\n";
+        $robotsContent .= "Disallow: /api/\n";
+        $robotsContent .= "Allow: /api/search\n";
+        $robotsContent .= "Disallow: /profile\n";
+        $robotsContent .= "Disallow: /dashboard\n";
+        $robotsContent .= "Disallow: /*.json$\n";
+        $robotsContent .= "Allow: /*.css$\n";
+        $robotsContent .= "Allow: /*.js$\n";
+        $robotsContent .= "\n";
+        $robotsContent .= "Sitemap: " . url('/sitemap.xml') . "\n";
+    }
+
+    return response($robotsContent, 200, [
+        'Content-Type' => 'text/plain; charset=utf-8',
+        'Cache-Control' => 'public, max-age=86400', // Cache for 24 hours
+    ]);
+})->name('robots');
+
 // Search routes
 Route::prefix('api/search')->name('search.')->group(function () {
     Route::get('/', [App\Http\Controllers\Web\SearchController::class, 'search'])->name('search');

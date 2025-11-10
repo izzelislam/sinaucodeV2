@@ -1,2 +1,115 @@
 User-agent: *
-Disallow:
+Allow: /
+
+# Block admin areas
+Disallow: /admin/
+Disallow: /admin/dashboard
+Disallow: /admin/articles
+Disallow: /admin/categories
+Disallow: /admin/tags
+Disallow: /admin/series
+Disallow: /admin/users
+Disallow: /admin/profile
+Disallow: /admin/templates
+
+# Block API endpoints (except search)
+Disallow: /api/
+Allow: /api/search
+Allow: /api/search/suggestions
+Allow: /api/search/facets
+
+# Block user-specific routes
+Disallow: /profile
+Disallow: /dashboard
+Disallow: /login
+Disallow: /register
+Disallow: /forgot-password
+Disallow: /reset-password
+Disallow: /email/verify
+
+# Block file endpoints and dynamic content
+Disallow: /*.json$
+Disallow: /storage/
+Disallow: /vendor/
+Disallow: /node_modules/
+
+# Block query parameters (except for allowed ones)
+Disallow: /*?*
+Allow: /*?category=*
+Allow: /*?tag=*
+Allow: /*?q=*
+Allow: /*?page=*
+
+# Block common non-content files
+Disallow: /_debugbar/
+Disallow: /telescope/
+Disallow: /horizon/
+
+# Allow static assets
+Allow: /*.css$
+Allow: /*.js$
+Allow: /*.jpg$
+Allow: /*.jpeg$
+Allow: /*.png$
+Allow: /*.gif$
+Allow: /*.svg$
+Allow: /*.webp$
+Allow: /*.avif$
+Allow: /images/
+Allow: /css/
+Allow: /js/
+
+# Crawl delay (optional - remove if you want aggressive crawling)
+Crawl-delay: 1
+
+# Host (for Yandex)
+Host: sinaucode.test
+
+# Sitemaps
+Sitemap: https://sinaucode.dev/sitemap.xml
+
+# Additional rules for specific bots
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 0
+
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 1
+
+User-agent: Slurp
+Allow: /
+Crawl-delay: 1
+
+User-agent: DuckDuckBot
+Allow: /
+Crawl-delay: 1
+
+User-agent: Baiduspider
+Allow: /
+Crawl-delay: 2
+
+User-agent: YandexBot
+Allow: /
+Crawl-delay: 2
+
+# Block unwanted bots
+User-agent: SemrushBot
+Disallow: /
+
+User-agent: AhrefsBot
+Disallow: /
+
+User-agent: MJ12bot
+Disallow: /
+
+User-agent: DotBot
+Disallow: /
+
+User-agent: BLEXBot
+Disallow: /
+
+User-agent: BacklinkCrawler
+Disallow: /
+
+# End of robots.txt
